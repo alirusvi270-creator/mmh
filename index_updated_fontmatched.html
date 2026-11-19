@@ -1,0 +1,1976 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="KM/AK/Muhammadhiya Junior Vidyalaya seven-subject exam result portal">
+    <title>KM/AK/Muhammadhiya Junior Vidyalaya Akkaraipattu - Exam Result Management System</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js for Analytics -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+Sinhala:wght@400;600;700&family=Noto+Sans+Tamil:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'Noto Sans Tamil', 'Noto Sans Sinhala', 'sans-serif'],
+                    },
+                    colors: {
+                        navy: {
+                            50: '#f0f4f8',
+                            100: '#d9e2ec',
+                            500: '#1b4079',
+                            800: '#0d2847',
+                            900: '#071729',
+                        },
+                        schoolRed: '#d91b24',
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        .school-bg {
+            background-color: #ffffff;
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+            color: #0f172a;
+        }
+
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            .printable-report-card, .printable-report-card * {
+                visibility: visible;
+            }
+            .printable-report-card {
+                position: relative;
+                left: auto;
+                top: auto;
+                width: 100%;
+                page-break-after: always;
+                break-after: page;
+                background: white !important;
+                color: black !important;
+                padding: 20px !important;
+                box-shadow: none !important;
+            }
+            .no-print {
+                display: none !important;
+            }
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    
+        .cocurriculum-check {
+            width: 30px;
+            height: 30px;
+            border: 2px solid #111827;
+            background: #fff;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: #111827;
+            font-size: 24px;
+            line-height: 1;
+            font-weight: 800;
+        }
+        .cocurriculum-check.is-checked::after { content: "✓"; }
+        @media print {
+            #res-cocurriculum-section { break-inside: avoid; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+            .cocurriculum-check { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+        }
+
+    </style>
+</head>
+<body id="main-body" class="school-bg text-slate-800 font-sans min-h-screen flex flex-col antialiased selection:bg-teal-500 selection:text-white" style="background-color: #ffffff;">
+
+    <!-- Toast Notification Message Container -->
+    <div id="toast-message" class="hidden fixed bottom-5 right-5 z-50 bg-slate-900 text-white px-5 py-3 rounded-xl shadow-2xl border border-slate-700 flex items-center space-x-3 transition-all duration-300">
+        <i id="toast-icon" class="fa-solid fa-circle-check text-emerald-400 text-lg"></i>
+        <span id="toast-text" class="text-sm font-medium">Notification message</span>
+    </div>
+
+    <!-- Top Trilingual School Signboard Navigation Header -->
+    <header class="bg-navy-900 text-white shadow-xl sticky top-0 z-40 no-print border-b border-amber-500/40">
+        <div class="bg-schoolRed text-white py-2 px-4 text-center border-b border-amber-400 shadow-inner">
+            <div class="max-w-7xl mx-auto flex flex-col items-center justify-center space-y-0.5">
+                <p class="text-xs sm:text-sm font-semibold tracking-wide">කමු/අක්/මුහම්මදියා කනිෂ්ඨ විද්‍යාලය</p>
+                <p class="text-xs sm:text-sm font-semibold tracking-wide">கமு/அக்/முஹம்மதியா கனிஷ்ட வித்தியாலயம்</p>
+                <h1 class="text-sm sm:text-base font-extrabold tracking-wider uppercase text-amber-200">KM/AK/MUHAMMADIYA JUNIOR VIDYALAYA</h1>
+                <p class="text-[10px] sm:text-xs text-white/90 font-medium tracking-widest uppercase">PALLIKKUDIYIRUPPU - AKKARAIPATTU</p>
+            </div>
+        </div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16 sm:h-20">
+                <div class="flex items-center space-x-3 cursor-pointer" onclick="switchTab('student')">
+                    <div class="relative w-12 h-12 flex-shrink-0 bg-white rounded-full p-0.5 shadow-md border-2 border-amber-400 overflow-hidden flex items-center justify-center">
+                        <img id="header-logo-img" class="w-full h-full object-contain hidden" alt="School Logo" />
+                        <div id="header-logo-svg" class="w-full h-full">
+                            <!-- Official KM/AK/Mohammadiya Junior Vidyalaya Crest SVG -->
+                            <svg viewBox="0 0 200 200" class="w-full h-full drop-shadow-md">
+                                <circle cx="100" cy="100" r="98" fill="#1e3a8a" stroke="#fbbf24" stroke-width="4"/>
+                                <circle cx="100" cy="100" r="76" fill="#fef08a" stroke="#d97706" stroke-width="2"/>
+                                <!-- Sunburst lines -->
+                                <g stroke="#fde047" stroke-width="1.5" opacity="0.6">
+                                    <line x1="100" y1="100" x2="40" y2="40"/><line x1="100" y1="100" x2="160" y2="40"/>
+                                    <line x1="100" y1="100" x2="30" y2="100"/><line x1="100" y1="100" x2="170" y2="100"/>
+                                    <line x1="100" y1="100" x2="100" y2="30"/><line x1="100" y1="100" x2="60" y2="150"/>
+                                    <line x1="100" y1="100" x2="140" y2="150"/>
+                                </g>
+                                <!-- Green Dome (Madina Dome) -->
+                                <path d="M 72 132 C 72 90, 118 90, 118 132 Z" fill="#16a34a" stroke="#15803d" stroke-width="1.5"/>
+                                <path d="M 95 90 L 95 80 L 95 78" stroke="#fbbf24" stroke-width="2" stroke-linecap="round"/>
+                                <circle cx="95" cy="77" r="2" fill="#fbbf24"/>
+                                <!-- Crescent Moon -->
+                                <path d="M 55 125 A 38 38 0 1 0 102 68 A 42 42 0 1 1 55 125 Z" fill="#15803d"/>
+                                <!-- Minaret -->
+                                <rect x="116" y="85" width="12" height="47" fill="#ffffff" stroke="#d97706" stroke-width="1"/>
+                                <rect x="114" y="82" width="16" height="4" fill="#fbbf24"/>
+                                <polygon points="122,65 116,82 128,82" fill="#ffffff" stroke="#d97706" stroke-width="1"/>
+                                <circle cx="122" cy="63" r="2" fill="#fbbf24"/>
+                                <!-- Calligraphy / Iqra Symbol Representation -->
+                                <text x="95" y="65" font-family="serif" font-size="12" font-weight="bold" fill="#0f172a" text-anchor="middle">اقْرَأْ</text>
+                                <!-- Olive Wreath Leaves -->
+                                <g fill="#16a34a">
+                                    <path d="M 45 125 Q 35 110 40 95 Q 50 110 45 125 Z"/>
+                                    <path d="M 40 105 Q 28 92 35 78 Q 45 92 40 105 Z"/>
+                                    <path d="M 155 125 Q 165 110 160 95 Q 150 110 155 125 Z"/>
+                                    <path d="M 160 105 Q 172 92 165 78 Q 155 92 160 105 Z"/>
+                                    <path d="M 50 135 Q 75 160 100 160 Q 125 160 150 135 Q 125 152 100 152 Q 75 152 50 135 Z" fill="#15803d"/>
+                                </g>
+                                <!-- Outer Curved Text -->
+                                <path id="headerTextPathTop" d="M 22 100 A 78 78 0 1 1 178 100" fill="none"/>
+                                <text font-size="8.5" font-weight="900" fill="#ffffff" letter-spacing="0.5">
+                                    <textPath href="#headerTextPathTop" startOffset="50%" text-anchor="middle">KM/AK/MOHAMMADIYA JUNIOR VIDYALAYA</textPath>
+                                </text>
+                                <path id="headerTextPathBottom" d="M 178 100 A 78 78 0 0 1 22 100" fill="none"/>
+                                <text font-size="7.5" font-weight="800" fill="#ffffff" letter-spacing="0.3">
+                                    <textPath href="#headerTextPathBottom" startOffset="50%" text-anchor="middle">PALLIKKUDIYIRUPPU - AKKARAIPATTU</textPath>
+                                </text>
+                                <polygon points="28,100 32,95 34,101 29,97 34,97" fill="#fbbf24"/>
+                                <polygon points="172,100 168,95 166,101 171,97 166,97" fill="#fbbf24"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="font-bold text-sm sm:text-base text-white leading-tight">Student Exam Result Portal</div>
+                        <p class="text-xs text-amber-300 font-medium">Terminal Academic Performance System</p>
+                    </div>
+                </div>
+
+                <nav class="hidden md:flex space-x-2 bg-navy-800/80 p-1.5 rounded-xl border border-slate-700/60">
+                    <button id="nav-student" onclick="switchTab('student')" class="nav-btn flex items-center space-x-2 px-4 py-2 text-sm font-semibold rounded-lg transition-all duration-200 bg-teal-500 text-white shadow">
+                        <i class="fa-solid fa-user-graduate"></i>
+                        <span>Student Portal</span>
+                    </button>
+                    <button id="nav-admin" onclick="switchTab('admin')" class="nav-btn flex items-center space-x-2 px-4 py-2 text-sm font-semibold rounded-lg transition-all duration-200 text-slate-300 hover:text-white hover:bg-slate-700/50">
+                        <i class="fa-solid fa-user-shield"></i>
+                        <span>Teacher / Admin Portal</span>
+                    </button>
+                    <button id="nav-analytics" onclick="switchTab('analytics')" class="nav-btn flex items-center space-x-2 px-4 py-2 text-sm font-semibold rounded-lg transition-all duration-200 text-slate-300 hover:text-white hover:bg-slate-700/50">
+                        <i class="fa-solid fa-chart-pie"></i>
+                        <span>Analytics & Reports</span>
+                    </button>
+                </nav>
+
+                <div class="md:hidden">
+                    <button id="mobile-menu-btn" onclick="toggleMobileMenu()" class="p-2 text-slate-300 hover:text-white focus:outline-none">
+                        <i class="fa-solid fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div id="mobile-menu" class="hidden md:hidden pb-4 pt-2 border-t border-slate-700 space-y-2">
+                <button onclick="switchTab('student')" class="w-full text-left flex items-center space-x-2 px-4 py-2.5 text-sm font-semibold rounded-lg text-white bg-teal-600">
+                    <i class="fa-solid fa-user-graduate"></i>
+                    <span>Student Portal</span>
+                </button>
+                <button onclick="switchTab('admin')" class="w-full text-left flex items-center space-x-2 px-4 py-2.5 text-sm font-semibold rounded-lg text-slate-300 hover:bg-navy-800">
+                    <i class="fa-solid fa-user-shield"></i>
+                    <span>Teacher / Admin Portal</span>
+                </button>
+                <button onclick="switchTab('analytics')" class="w-full text-left flex items-center space-x-2 px-4 py-2.5 text-sm font-semibold rounded-lg text-slate-300 hover:bg-navy-800">
+                    <i class="fa-solid fa-chart-pie"></i>
+                    <span>Analytics & Reports</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container Area -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        <!-- ========================================================================= -->
+        <!-- TAB 1: STUDENT PORTAL -->
+        <!-- ========================================================================= -->
+        <section id="tab-student" class="tab-content space-y-6">
+            <div class="bg-slate-50 rounded-2xl p-6 sm:p-8 shadow-md border border-slate-200">
+                <div class="max-w-4xl mx-auto space-y-6">
+                    <div class="text-center space-y-2 flex flex-col items-center">
+                        <div class="w-24 h-24 mb-1 relative">
+                            <img id="portal-logo-img" class="w-full h-full object-contain hidden" alt="School Crest" />
+                            <div id="portal-logo-svg" class="w-full h-full">
+                                <svg viewBox="0 0 200 200" class="w-full h-full drop-shadow-md">
+                                    <circle cx="100" cy="100" r="98" fill="#1e3a8a" stroke="#fbbf24" stroke-width="4"/>
+                                    <circle cx="100" cy="100" r="76" fill="#fef08a" stroke="#d97706" stroke-width="2"/>
+                                    <g stroke="#fde047" stroke-width="1.5" opacity="0.6">
+                                        <line x1="100" y1="100" x2="40" y2="40"/><line x1="100" y1="100" x2="160" y2="40"/>
+                                        <line x1="100" y1="100" x2="30" y2="100"/><line x1="100" y1="100" x2="170" y2="100"/>
+                                        <line x1="100" y1="100" x2="100" y2="30"/><line x1="100" y1="100" x2="60" y2="150"/>
+                                        <line x1="100" y1="100" x2="140" y2="150"/>
+                                    </g>
+                                    <path d="M 72 132 C 72 90, 118 90, 118 132 Z" fill="#16a34a" stroke="#15803d" stroke-width="1.5"/>
+                                    <path d="M 95 90 L 95 80 L 95 78" stroke="#fbbf24" stroke-width="2" stroke-linecap="round"/>
+                                    <circle cx="95" cy="77" r="2" fill="#fbbf24"/>
+                                    <path d="M 55 125 A 38 38 0 1 0 102 68 A 42 42 0 1 1 55 125 Z" fill="#15803d"/>
+                                    <rect x="116" y="85" width="12" height="47" fill="#ffffff" stroke="#d97706" stroke-width="1"/>
+                                    <rect x="114" y="82" width="16" height="4" fill="#fbbf24"/>
+                                    <polygon points="122,65 116,82 128,82" fill="#ffffff" stroke="#d97706" stroke-width="1"/>
+                                    <circle cx="122" cy="63" r="2" fill="#fbbf24"/>
+                                    <text x="95" y="65" font-family="serif" font-size="12" font-weight="bold" fill="#0f172a" text-anchor="middle">اقْرَأْ</text>
+                                    <g fill="#16a34a">
+                                        <path d="M 45 125 Q 35 110 40 95 Q 50 110 45 125 Z"/>
+                                        <path d="M 40 105 Q 28 92 35 78 Q 45 92 40 105 Z"/>
+                                        <path d="M 155 125 Q 165 110 160 95 Q 150 110 155 125 Z"/>
+                                        <path d="M 160 105 Q 172 92 165 78 Q 155 92 160 105 Z"/>
+                                        <path d="M 50 135 Q 75 160 100 160 Q 125 160 150 135 Q 125 152 100 152 Q 75 152 50 135 Z" fill="#15803d"/>
+                                    </g>
+                                    <path id="portalTextPathTop" d="M 22 100 A 78 78 0 1 1 178 100" fill="none"/>
+                                    <text font-size="8.5" font-weight="900" fill="#ffffff" letter-spacing="0.5">
+                                        <textPath href="#portalTextPathTop" startOffset="50%" text-anchor="middle">KM/AK/MOHAMMADIYA JUNIOR VIDYALAYA</textPath>
+                                    </text>
+                                    <path id="portalTextPathBottom" d="M 178 100 A 78 78 0 0 1 22 100" fill="none"/>
+                                    <text font-size="7.5" font-weight="800" fill="#ffffff" letter-spacing="0.3">
+                                        <textPath href="#portalTextPathBottom" startOffset="50%" text-anchor="middle">PALLIKKUDIYIRUPPU - AKKARAIPATTU</textPath>
+                                    </text>
+                                    <polygon points="28,100 32,95 34,101 29,97 34,97" fill="#fbbf24"/>
+                                    <polygon points="172,100 168,95 166,101 171,97 166,97" fill="#fbbf24"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <h2 class="text-xl sm:text-2xl font-bold text-navy-900">KM/AK/Muhammadhiya Junior Vidyalaya Akkaraipattu</h2>
+                        <p class="text-xs sm:text-sm text-slate-600 font-medium">Pallikkudiyiruppu • Student Terminal Result Portal</p>
+                    </div>
+                    
+                    <form onsubmit="handleStudentSearch(event)" class="space-y-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 uppercase mb-1.5">1. Index Number</label>
+                                <div class="relative">
+                                    <input type="text" id="search-roll" placeholder="e.g. INDEX101" required
+                                        class="w-full pl-9 pr-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none transition text-slate-800 font-medium text-sm">
+                                    <i class="fa-solid fa-id-badge absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 text-xs"></i>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 uppercase mb-1.5">2. Grade / Class</label>
+                                <div class="relative">
+                                    <select id="search-grade" class="w-full pl-9 pr-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none transition text-slate-800 font-medium text-sm">\n<option value="">Select Grade / Class</option>\n<option value="Grade 1 A">Grade 1 A</option><option value="Grade 1 B">Grade 1 B</option><option value="Grade 2 A">Grade 2 A</option><option value="Grade 2 B">Grade 2 B</option><option value="Grade 3 A">Grade 3 A</option><option value="Grade 3 B">Grade 3 B</option><option value="Grade 4 A">Grade 4 A</option><option value="Grade 4 B">Grade 4 B</option><option value="Grade 5 A">Grade 5 A</option><option value="Grade 5 B">Grade 5 B</option>\n</select>
+                                    <i class="fa-solid fa-school absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 text-xs"></i>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 uppercase mb-1.5">3. Academic Year</label>
+                                <div class="relative">
+                                    <select id="search-year" class="w-full pl-9 pr-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none transition text-slate-800 font-medium text-sm">
+                                        <option value="">Select Year</option>
+                                        <option value="2026">2026</option>
+                                        <option value="2025">2025</option>
+                                    </select>
+                                    <i class="fa-solid fa-calendar-days absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 text-xs"></i>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 uppercase mb-1.5">4. Exam Term</label>
+                                <div class="relative">
+                                    <select id="search-term" class="w-full pl-9 pr-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none transition text-slate-800 font-medium text-sm">
+                                        <option value="">Select Term</option>
+                                        <option value="Term 1">Term 1</option>
+                                        <option value="Term 2">Term 2</option>
+                                        <option value="Term 3">Term 3</option>
+                                    </select>
+                                    <i class="fa-solid fa-clock absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 text-xs"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-center pt-2">
+                            <button type="submit" class="px-8 py-3 bg-teal-600 hover:bg-teal-700 text-white font-semibold rounded-xl shadow-md hover:shadow-lg transition flex items-center justify-center space-x-2">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                                <span>Find Exam Result</span>
+                            </button>
+                        </div>
+                    </form>
+
+
+                </div>
+            </div>
+
+            <!-- Student Result Display Card -->
+            <div id="student-result-container" class="hidden space-y-6">
+                <div class="flex flex-wrap justify-between items-center gap-4 bg-slate-900/90 text-white p-4 rounded-xl border border-slate-700 shadow-md no-print">
+                    <div class="text-sm font-medium">
+                        <i class="fa-solid fa-circle-check text-emerald-400 mr-1.5"></i> Loaded Result for KM/AK/Muhammadhiya JV Report Card
+                    </div>
+                    <div class="flex items-center space-x-3">
+                        <button onclick="exportCurrentCSV()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white font-semibold text-sm rounded-lg border border-slate-600 transition flex items-center space-x-2">
+                            <i class="fa-solid fa-file-csv text-emerald-400"></i>
+                            <span>Export CSV</span>
+                        </button>
+                        <button onclick="window.print()" class="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white font-semibold text-sm rounded-lg shadow transition flex items-center space-x-2">
+                            <i class="fa-solid fa-print"></i>
+                            <span>Print / Download PDF</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div id="printable-report-card" class="bg-white rounded-2xl p-6 sm:p-10 shadow-2xl border border-slate-200 space-y-8">
+                    <div class="border-b-2 border-slate-800 pb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                        <div class="flex items-center space-x-4">
+                            <div class="w-20 h-20 flex-shrink-0 relative">
+                                <img id="card-logo-img" class="w-full h-full object-contain hidden" alt="School Crest" />
+                                <div id="card-logo-svg" class="w-full h-full">
+                                    <svg viewBox="0 0 200 200" class="w-full h-full">
+                                        <circle cx="100" cy="100" r="98" fill="#1e3a8a" stroke="#fbbf24" stroke-width="4"/>
+                                        <circle cx="100" cy="100" r="76" fill="#fef08a" stroke="#d97706" stroke-width="2"/>
+                                        <g stroke="#fde047" stroke-width="1.5" opacity="0.6">
+                                            <line x1="100" y1="100" x2="40" y2="40"/><line x1="100" y1="100" x2="160" y2="40"/>
+                                            <line x1="100" y1="100" x2="30" y2="100"/><line x1="100" y1="100" x2="170" y2="100"/>
+                                            <line x1="100" y1="100" x2="100" y2="30"/><line x1="100" y1="100" x2="60" y2="150"/>
+                                            <line x1="100" y1="100" x2="140" y2="150"/>
+                                        </g>
+                                        <path d="M 72 132 C 72 90, 118 90, 118 132 Z" fill="#16a34a" stroke="#15803d" stroke-width="1.5"/>
+                                        <path d="M 95 90 L 95 80 L 95 78" stroke="#fbbf24" stroke-width="2" stroke-linecap="round"/>
+                                        <circle cx="95" cy="77" r="2" fill="#fbbf24"/>
+                                        <path d="M 55 125 A 38 38 0 1 0 102 68 A 42 42 0 1 1 55 125 Z" fill="#15803d"/>
+                                        <rect x="116" y="85" width="12" height="47" fill="#ffffff" stroke="#d97706" stroke-width="1"/>
+                                        <rect x="114" y="82" width="16" height="4" fill="#fbbf24"/>
+                                        <polygon points="122,65 116,82 128,82" fill="#ffffff" stroke="#d97706" stroke-width="1"/>
+                                        <circle cx="122" cy="63" r="2" fill="#fbbf24"/>
+                                        <text x="95" y="65" font-family="serif" font-size="12" font-weight="bold" fill="#0f172a" text-anchor="middle">اقْرَأْ</text>
+                                        <g fill="#16a34a">
+                                            <path d="M 45 125 Q 35 110 40 95 Q 50 110 45 125 Z"/>
+                                            <path d="M 40 105 Q 28 92 35 78 Q 45 92 40 105 Z"/>
+                                            <path d="M 155 125 Q 165 110 160 95 Q 150 110 155 125 Z"/>
+                                            <path d="M 160 105 Q 172 92 165 78 Q 155 92 160 105 Z"/>
+                                            <path d="M 50 135 Q 75 160 100 160 Q 125 160 150 135 Q 125 152 100 152 Q 75 152 50 135 Z" fill="#15803d"/>
+                                        </g>
+                                        <path id="cardTextPathTop" d="M 22 100 A 78 78 0 1 1 178 100" fill="none"/>
+                                        <text font-size="8.5" font-weight="900" fill="#ffffff" letter-spacing="0.5">
+                                            <textPath href="#cardTextPathTop" startOffset="50%" text-anchor="middle">KM/AK/MOHAMMADIYA JUNIOR VIDYALAYA</textPath>
+                                        </text>
+                                        <path id="cardTextPathBottom" d="M 178 100 A 78 78 0 0 1 22 100" fill="none"/>
+                                        <text font-size="7.5" font-weight="800" fill="#ffffff" letter-spacing="0.3">
+                                            <textPath href="#cardTextPathBottom" startOffset="50%" text-anchor="middle">PALLIKKUDIYIRUPPU - AKKARAIPATTU</textPath>
+                                        </text>
+                                        <polygon points="28,100 32,95 34,101 29,97 34,97" fill="#fbbf24"/>
+                                        <polygon points="172,100 168,95 166,101 171,97 166,97" fill="#fbbf24"/>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div>
+                                <h3 class="text-lg sm:text-xl font-extrabold text-navy-900 leading-tight">KM/AK/MUHAMMADIYA JUNIOR VIDYALAYA</h3>
+                                <p class="text-xs font-bold text-schoolRed uppercase">Pallikkudiyiruppu • Akkaraipattu</p>
+                                <p class="text-xs text-slate-500 font-semibold mt-0.5">Official Student Terminal Progress Sheet</p>
+                            </div>
+                        </div>
+                        <div class="text-left sm:text-right">
+                            <span id="res-status-badge" class="px-3.5 py-1 rounded-full text-xs font-extrabold uppercase tracking-wider bg-emerald-100 text-emerald-800 border border-emerald-300">
+                                PASSED
+                            </span>
+                            <p class="text-xs text-slate-400 mt-2 font-medium" id="res-date-generated">Generated: Nov 2026</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 md:grid-cols-5 gap-4 bg-slate-50 p-4 rounded-xl border border-slate-200">
+                        <div>
+                            <p class="text-[11px] text-slate-400 font-bold uppercase tracking-wider">Student Name</p>
+                            <p id="res-name" class="font-bold text-slate-900 text-base">-</p>
+                        </div>
+                        <div>
+                            <p class="text-[11px] text-slate-400 font-bold uppercase tracking-wider">Index No</p>
+                            <p id="res-id" class="font-bold text-slate-800">-</p>
+                        </div>
+                        <div>
+                            <p class="text-[11px] text-slate-400 font-bold uppercase tracking-wider">Grade / Class</p>
+                            <p id="res-class" class="font-bold text-slate-800">-</p>
+                        </div>
+                        <div>
+                            <p class="text-[11px] text-slate-400 font-bold uppercase tracking-wider">Academic Year</p>
+                            <p id="res-year" class="font-bold text-slate-800">-</p>
+                        </div>
+                        <div>
+                            <p class="text-[11px] text-slate-400 font-bold uppercase tracking-wider">Exam Term</p>
+                            <p id="res-term" class="font-bold text-slate-800">-</p>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h4 class="text-sm font-bold text-navy-900 mb-3 flex items-center space-x-2">
+                            <i class="fa-solid fa-book-open text-teal-600"></i>
+                            <span>Subject Evaluation Scores (7 Subjects)</span>
+                        </h4>
+                        <div class="overflow-x-auto rounded-xl border border-slate-200 shadow-sm">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="bg-navy-900 text-white text-xs font-bold uppercase tracking-wider">
+                                        <th class="p-3.5">Subject Name</th>
+                                        <th class="p-3.5 text-center">Max Score</th>
+                                        <th class="p-3.5 text-center">Marks Score</th>
+                                        <th class="p-3.5 text-center">Grade</th>
+                                        <th class="p-3.5">Performance Remarks</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="res-table-body" class="divide-y divide-slate-200 text-sm">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- New Co-curriculum section (kept separate from the Reading subject row) -->
+                    <div id="res-cocurriculum-section" class="border-2 border-emerald-800 rounded-sm overflow-hidden">
+                        <div class="grid grid-cols-[1.8fr_repeat(5,minmax(0,1fr))] bg-navy-900 text-white text-center font-bold text-xs uppercase tracking-wider">
+                            <div class="py-2 px-1"></div>
+                            <div class="py-2 px-1">Scout</div>
+                            <div class="py-2 px-1">Band</div>
+                            <div class="py-2 px-1">Raban</div>
+                            <div class="py-2 px-1">Leadership</div>
+                            <div class="py-2 px-1">Other</div>
+                        </div>
+                        <div class="grid grid-cols-[1.8fr_repeat(5,minmax(0,1fr))] bg-transparent text-slate-800 items-center min-h-[52px] text-sm">
+                            <div class="text-left font-semibold text-sm px-3 py-2">Co-curriculum</div>
+                            <div class="flex justify-center items-center py-3"><span data-cocurriculum="scout" class="cocurriculum-check hidden" aria-label="Scout completed"></span></div>
+                            <div class="flex justify-center items-center py-3"><span data-cocurriculum="band" class="cocurriculum-check hidden" aria-label="Band completed"></span></div>
+                            <div class="flex justify-center items-center py-3"><span data-cocurriculum="raban" class="cocurriculum-check hidden" aria-label="Raban completed"></span></div>
+                            <div class="flex justify-center items-center py-3"><span data-cocurriculum="leadership" class="cocurriculum-check hidden" aria-label="Leadership completed"></span></div>
+                            <div class="flex justify-center items-center py-3"><span data-cocurriculum="other" class="cocurriculum-check hidden" aria-label="Other completed"></span></div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 lg:grid-cols-5 gap-4">
+                        <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 text-center">
+                            <p class="text-[11px] text-slate-400 font-bold uppercase">Total Score</p>
+                            <p id="res-total" class="text-2xl font-extrabold text-navy-900 mt-1">-</p>
+                        </div>
+                        <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 text-center">
+                            <p class="text-[11px] text-slate-400 font-bold uppercase">Overall Percentage</p>
+                            <p id="res-percentage" class="text-2xl font-extrabold text-teal-600 mt-1">-</p>
+                        </div>
+                        <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 text-center">
+                            <p class="text-[11px] text-slate-400 font-bold uppercase">Overall Grade</p>
+                            <p id="res-overall-grade" class="text-2xl font-extrabold text-indigo-600 mt-1">-</p>
+                        </div>
+                        <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 text-center">
+                            <p class="text-[11px] text-slate-400 font-bold uppercase">Average Score</p>
+                            <p id="res-avg" class="text-2xl font-extrabold text-purple-600 mt-1">-</p>
+                        </div>
+                        <div class="col-span-2 lg:col-span-1 bg-slate-50 border border-slate-200 rounded-xl p-4 text-center">
+                            <p class="text-[11px] text-slate-400 font-bold uppercase">Class Rank</p>
+                            <p id="res-rank" class="text-2xl font-extrabold text-amber-500 mt-1">-</p>
+                        </div>
+                    </div>
+
+                    <div class="pt-8 border-t border-slate-300 grid grid-cols-1 sm:grid-cols-3 gap-6 text-center">
+                        <div>
+                            <div class="h-12 flex items-center justify-center">
+                                <span class="text-xs text-slate-300 italic">[ Official Seal Space ]</span>
+                            </div>
+                            <div class="w-32 border-b border-slate-400 mx-auto mb-1"></div>
+                            <p class="text-xs font-bold text-slate-700">Class Teacher</p>
+                            <p class="text-[10px] text-slate-400">Signature & Date</p>
+                        </div>
+                        <div>
+                            <div class="h-12 flex items-center justify-center">
+                                <span class="text-xs font-bold text-slate-400 tracking-wider">[ APPROVED ]</span>
+                            </div>
+                            <div class="w-32 border-b border-slate-400 mx-auto mb-1"></div>
+                            <p class="text-xs font-bold text-slate-700">Sectional Head</p>
+                            <p class="text-[10px] text-slate-400">KM/AK/Muhammadhiya JV</p>
+                        </div>
+                        <div>
+                            <div class="h-12 flex items-center justify-center">
+                                <i class="fa-solid fa-stamp text-slate-300 text-2xl"></i>
+                            </div>
+                            <div class="w-32 border-b border-slate-400 mx-auto mb-1"></div>
+                            <p class="text-xs font-bold text-slate-700">Principal</p>
+                            <p class="text-[10px] text-slate-400">KM/AK/Muhammadhiya JV Akkaraipattu</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Empty Search State Container -->
+            <div id="student-empty-state" class="bg-slate-50 rounded-2xl p-12 text-center border border-slate-200 shadow-md space-y-4">
+                <div class="w-16 h-16 bg-teal-50 text-teal-600 rounded-full flex items-center justify-center mx-auto text-2xl">
+                    <i class="fa-solid fa-id-card"></i>
+                </div>
+                <h3 class="text-lg font-bold text-navy-900">Enter Search Criteria Above</h3>
+                <p class="text-sm text-slate-500 max-w-md mx-auto">Enter an Index Number to view all available term results, or select Grade, Year, and Term to narrow your search. You can also use a demo sample.</p>
+            </div>
+        </section>
+
+        <!-- ========================================================================= -->
+        <!-- TAB 2: TEACHER / ADMIN PORTAL -->
+        <!-- ========================================================================= -->
+        <section id="tab-admin" class="tab-content hidden space-y-8">
+            <div id="admin-login-panel" class="max-w-md mx-auto bg-white p-8 rounded-2xl border border-slate-200 shadow-lg text-center">
+                <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center text-2xl"><i class="fa-solid fa-lock"></i></div>
+                <h2 class="text-2xl font-bold text-navy-900 mb-2">Admin Login</h2>
+                <p class="text-sm text-slate-500 mb-6">Teacher / Admin Portal-ஐத் திறக்க password உள்ளிடவும்.</p>
+                <form onsubmit="return adminLogin(event)" class="space-y-4">
+                    <input id="admin-login-password" type="password" autocomplete="current-password" placeholder="Enter admin password" required class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-teal-500 outline-none">
+                    <p id="admin-login-error" class="hidden text-sm text-red-600">தவறான password. மீண்டும் முயற்சிக்கவும்.</p>
+                    <button type="submit" class="w-full px-4 py-3 bg-teal-600 hover:bg-teal-700 text-white font-semibold rounded-xl">Login</button>
+                </form>
+            </div>
+            <div id="admin-protected-content" class="hidden space-y-8">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-50 p-6 rounded-2xl border border-slate-200 shadow-md">
+                <div>
+                    <h2 class="text-2xl font-bold text-navy-900">Teacher & Admin Management Portal</h2>
+                    <p class="text-sm text-slate-500">Manage student scores for Tamil, Maths, Islam, English, Sinhala, ERA and Reading, plus appearance settings.</p>
+                </div>
+                <div class="flex flex-wrap items-center gap-3">
+                    <button onclick="adminLogout()" class="px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white font-semibold text-sm rounded-xl shadow transition flex items-center space-x-2">
+                        <i class="fa-solid fa-right-from-bracket"></i><span>Logout</span>
+                    </button>
+                    <button onclick="toggleLogoModal(true)" class="px-4 py-2.5 bg-blue-700 hover:bg-blue-800 text-white font-semibold text-sm rounded-xl shadow transition flex items-center space-x-2">
+                        <i class="fa-solid fa-sliders"></i>
+                        <span>Appearance Settings</span>
+                    </button>
+                    <button onclick="resetDefaultData()" class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-sm rounded-xl border border-slate-300 transition flex items-center space-x-2">
+                        <i class="fa-solid fa-rotate-left"></i>
+                        <span>Reset Sample Data</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Record Form -->
+            <div class="bg-slate-50 p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-md space-y-6">
+                <h3 id="form-title" class="text-lg font-bold text-navy-900 flex items-center space-x-2 border-b border-slate-200 pb-3">
+                    <i class="fa-solid fa-user-plus text-teal-600"></i>
+                    <span>Add / Update Student Examination Record</span>
+                </h3>
+
+                <form onsubmit="saveStudentRecord(event)" class="space-y-6">
+                    <input type="hidden" id="edit-index-original" value="">
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Index Number</label>
+                            <input type="text" id="admin-index" placeholder="INDEX105" required class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-500 outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Full Name</label>
+                            <input type="text" id="admin-name" placeholder="Student Name" required class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-500 outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Grade</label>
+                            <select id="admin-grade" required class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-500 outline-none">
+                                <option value="Grade 1 A">Grade 1 A</option>
+                                <option value="Grade 1 B">Grade 1 B</option>
+                                <option value="Grade 2 A">Grade 2 A</option>
+                                <option value="Grade 2 B">Grade 2 B</option>
+                                <option value="Grade 3 A">Grade 3 A</option>
+                                <option value="Grade 3 B">Grade 3 B</option>
+                                <option value="Grade 4 A">Grade 4 A</option>
+                                <option value="Grade 4 B">Grade 4 B</option>
+                                <option value="Grade 5 A">Grade 5 A</option>
+                                <option value="Grade 5 B">Grade 5 B</option></select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Year & Term</label>
+                            <div class="grid grid-cols-2 gap-2">
+                                <select id="admin-year" required class="w-full px-2 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-teal-500 outline-none">
+                                    <option value="2026">2026</option>
+                                    <option value="2025">2025</option>
+                                </select>
+                                <select id="admin-term" required class="w-full px-2 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-teal-500 outline-none">
+                                    <option value="Term 3">Term 3</option>
+                                    <option value="Term 2">Term 2</option>
+                                    <option value="Term 1">Term 1</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="border-t border-slate-200 pt-4">
+                        <label class="block text-xs font-bold text-navy-900 uppercase mb-3">Subject Evaluation Scores (Enter number 0-100, type 'AB' for Absent, or leave empty if not evaluated)</label>
+                        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-3">
+                            <div>
+                                <label class="block text-[11px] font-semibold text-slate-600 mb-1">Tamil</label>
+                                <input type="text" id="score-tamil" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-sm font-semibold uppercase" placeholder="e.g. 85 or AB">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-semibold text-slate-600 mb-1">Mathematics</label>
+                                <input type="text" id="score-maths" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-sm font-semibold uppercase" placeholder="e.g. 85 or AB">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-semibold text-slate-600 mb-1">Islam</label>
+                                <input type="text" id="score-islam" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-sm font-semibold uppercase" placeholder="e.g. 85 or AB">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-semibold text-slate-600 mb-1">English</label>
+                                <input type="text" id="score-english" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-sm font-semibold uppercase" placeholder="e.g. 85 or AB">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-semibold text-slate-600 mb-1">Sinhala</label>
+                                <input type="text" id="score-sinhala" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-sm font-semibold uppercase" placeholder="e.g. 85 or AB">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-semibold text-slate-600 mb-1">ERA</label>
+                                <input type="text" id="score-era" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-sm font-semibold uppercase" placeholder="e.g. 85 or AB">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-semibold text-slate-600 mb-1">Reading (7th Subject)</label>
+                                <input type="text" id="score-reading" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-sm font-semibold uppercase" placeholder="e.g. 85 or AB">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center space-x-3">
+                        <button type="submit" class="px-6 py-2.5 bg-teal-600 hover:bg-teal-700 text-white font-semibold text-sm rounded-xl shadow transition">
+                            <i class="fa-solid fa-floppy-disk mr-1.5"></i> Save Record
+                        </button>
+                        <button type="button" onclick="resetAdminForm()" class="px-4 py-2.5 bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold text-sm rounded-xl transition">
+                            Clear
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Existing Student Records Table -->
+            <div class="bg-slate-50 rounded-2xl p-6 border border-slate-200 shadow-md space-y-4">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                    <h3 class="text-lg font-bold text-navy-900">Database Records (<span id="record-count">0</span>)</h3>
+                    <button onclick="exportAllCSV()" class="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white text-xs font-semibold rounded-lg transition flex items-center space-x-1.5">
+                        <i class="fa-solid fa-download"></i>
+                        <span>Export All Records CSV</span>
+                    </button>
+                </div>
+
+                <div class="overflow-x-auto rounded-xl border border-slate-200">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-navy-900 text-white text-xs font-bold uppercase tracking-wider">
+                                <th class="p-3">Index</th>
+                                <th class="p-3">Name</th>
+                                <th class="p-3">Grade</th>
+                                <th class="p-3">Year/Term</th>
+                                <th class="p-3 text-center">Total</th>
+                                <th class="p-3 text-center">%</th>
+                                <th class="p-3 text-center">Grade</th>
+                                <th class="p-3 text-center">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-records-body" class="divide-y divide-slate-200 text-xs">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            </div><!-- /admin-protected-content -->
+        </section>
+
+        <!-- ========================================================================= -->
+        <!-- TAB 3: ANALYTICS & REPORTS -->
+        <!-- ========================================================================= -->
+        <section id="tab-analytics" class="tab-content hidden space-y-8">
+            <div class="bg-slate-50 p-6 rounded-2xl border border-slate-200 shadow-md">
+                <h2 class="text-2xl font-bold text-navy-900">Analytics & Terminal Reports Dashboard</h2>
+                <p class="text-sm text-slate-500">Visual breakdown of student academic performance across subjects and grades.</p>
+            </div>
+
+            <!-- Key Metrics Cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center space-x-4">
+                    <div class="w-12 h-12 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center text-xl font-bold">
+                        <i class="fa-solid fa-users"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs font-bold uppercase text-slate-400">Total Enrolled</p>
+                        <p id="stat-total-students" class="text-2xl font-extrabold text-navy-900">0</p>
+                    </div>
+                </div>
+                <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center space-x-4">
+                    <div class="w-12 h-12 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-xl font-bold">
+                        <i class="fa-solid fa-circle-check"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs font-bold uppercase text-slate-400">Pass Rate</p>
+                        <p id="stat-pass-rate" class="text-2xl font-extrabold text-emerald-600">0%</p>
+                    </div>
+                </div>
+                <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center space-x-4">
+                    <div class="w-12 h-12 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center text-xl font-bold">
+                        <i class="fa-solid fa-chart-line"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs font-bold uppercase text-slate-400">School Average</p>
+                        <p id="stat-school-avg" class="text-2xl font-extrabold text-purple-600">0%</p>
+                    </div>
+                </div>
+                <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center space-x-4">
+                    <div class="w-12 h-12 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center text-xl font-bold">
+                        <i class="fa-solid fa-trophy"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs font-bold uppercase text-slate-400">Top Performer</p>
+                        <p id="stat-top-student" class="text-sm font-extrabold text-amber-600 truncate max-w-[150px]">-</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Top 10 Performers Leaderboard Section -->
+            <div class="bg-slate-50 p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-md space-y-6">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 pb-4">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center text-lg font-bold">
+                            <i class="fa-solid fa-ranking-star"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-navy-900">Top 10 Performers Leaderboard</h3>
+                            <p class="text-xs text-slate-500">Filter top performing students for each grade, year, and term</p>
+                        </div>
+                    </div>
+
+                    <!-- Filter Controls -->
+                    <div class="flex flex-wrap items-center gap-3">
+                        <div>
+                            <select id="leaderboard-grade" onchange="renderTopPerformers()" class="px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold text-slate-800 focus:ring-2 focus:ring-teal-500 outline-none">
+                                <option value="Grade 1 A">Grade 1 A</option>
+                                <option value="Grade 1 B">Grade 1 B</option>
+                                <option value="Grade 2 A">Grade 2 A</option>
+                                <option value="Grade 2 B">Grade 2 B</option>
+                                <option value="Grade 3 A">Grade 3 A</option>
+                                <option value="Grade 3 B">Grade 3 B</option>
+                                <option value="Grade 4 A">Grade 4 A</option>
+                                <option value="Grade 4 B">Grade 4 B</option>
+                                <option value="Grade 5 A" selected>Grade 5 A</option>
+                                <option value="Grade 5 B">Grade 5 B</option></select>
+                        </div>
+                        <div>
+                            <select id="leaderboard-year" onchange="renderTopPerformers()" class="px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold text-slate-800 focus:ring-2 focus:ring-teal-500 outline-none">
+                                <option value="2026" selected>2026</option>
+                                <option value="2025">2025</option>
+                            </select>
+                        </div>
+                        <div>
+                            <select id="leaderboard-term" onchange="renderTopPerformers()" class="px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold text-slate-800 focus:ring-2 focus:ring-teal-500 outline-none">
+                                <option value="Term 3" selected>Term 3</option>
+                                <option value="Term 2">Term 2</option>
+                                <option value="Term 1">Term 1</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto rounded-xl border border-slate-200">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-navy-900 text-white text-xs font-bold uppercase tracking-wider">
+                                <th class="p-3.5 text-center">Rank</th>
+                                <th class="p-3.5">Student Name</th>
+                                <th class="p-3.5">Index No</th>
+                                <th class="p-3.5 text-center">Grade</th>
+                                <th class="p-3.5 text-center">Total Score</th>
+                                <th class="p-3.5 text-center">Percentage</th>
+                                <th class="p-3.5 text-center">Grade</th>
+                                <th class="p-3.5 text-center">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="top-performers-body" class="divide-y divide-slate-200 text-xs">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Chart Visualizations Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="bg-slate-50 p-6 rounded-2xl border border-slate-200 shadow-md space-y-4">
+                    <h3 class="text-base font-bold text-navy-900 flex items-center space-x-2">
+                        <i class="fa-solid fa-chart-column text-teal-600"></i>
+                        <span>Average Marks by Subject</span>
+                    </h3>
+                    <div class="relative h-64">
+                        <canvas id="chart-subject-avg"></canvas>
+                    </div>
+                </div>
+                <div class="bg-slate-50 p-6 rounded-2xl border border-slate-200 shadow-md space-y-4">
+                    <h3 class="text-base font-bold text-navy-900 flex items-center space-x-2">
+                        <i class="fa-solid fa-chart-pie text-indigo-600"></i>
+                        <span>Overall Grade Distribution</span>
+                    </h3>
+                    <div class="relative h-64 flex justify-center">
+                        <canvas id="chart-grade-pie"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Appearance Settings Modal -->
+    <div id="logo-modal" class="hidden fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 space-y-6">
+            <div class="flex justify-between items-center border-b border-slate-200 pb-4">
+                <h3 class="text-lg font-bold text-navy-900">Custom Appearance Settings</h3>
+                <button onclick="toggleLogoModal(false)" class="text-slate-400 hover:text-slate-600">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Custom School Logo Image URL</label>
+                    <input type="url" id="custom-logo-input" placeholder="Paste a direct image URL or public Google Drive link" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-teal-500 outline-none">
+                    <p class="text-[11px] text-slate-400 mt-1">Or choose the logo image directly from your computer (recommended).</p>
+                    <input type="file" id="custom-logo-file" accept="image/*" class="w-full mt-2 text-sm text-slate-600 file:mr-3 file:rounded-lg file:border-0 file:bg-teal-50 file:px-3 file:py-2 file:font-semibold file:text-teal-700 hover:file:bg-teal-100">
+                    <p class="text-[11px] text-slate-400 mt-1">Use PNG, JPG, or WebP. Maximum file size: 3 MB. A selected file takes priority over the URL.</p>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Custom Background Image URL</label>
+                    <input type="url" id="custom-bg-input" placeholder="https://example.com/school-bg.jpg" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-teal-500 outline-none">
+                    <p class="text-[11px] text-slate-400 mt-1">Leave empty or reset to keep clean gradient layout without background image.</p>
+                </div>
+            </div>
+
+            <div class="flex flex-wrap justify-between items-center space-y-2 sm:space-y-0 pt-4 border-t border-slate-200">
+                <button onclick="resetAppearanceDefault()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-sm rounded-xl border border-slate-300 transition flex items-center space-x-1.5">
+                    <i class="fa-solid fa-rotate-left text-slate-500"></i>
+                    <span>Reset Default Settings</span>
+                </button>
+                <div class="flex space-x-2">
+                    <button onclick="saveAppearanceSettings()" class="px-5 py-2 bg-teal-600 hover:bg-teal-700 text-white font-semibold text-sm rounded-xl shadow transition">
+                        Apply Changes
+                    </button>
+                    <button onclick="toggleLogoModal(false)" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold text-sm rounded-xl transition">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Logic -->
+    <script>
+        // Google Sheets connection
+        const GOOGLE_SHEETS_API_URL = 'https://script.google.com/macros/s/AKfycbyXX5G6ZwnF6ZuZFMiGPW6uFgYcqw2IK_LK1QGdjtCmswyL5eUl0Kt4CXS6eE27wtKs/exec';
+
+        function sheetsJsonp(params) {
+            return new Promise((resolve, reject) => {
+                const callback = 'kmSheetCb_' + Date.now() + '_' + Math.floor(Math.random() * 100000);
+                const script = document.createElement('script');
+                const timer = setTimeout(() => {
+                    cleanup();
+                    reject(new Error('Google Sheets பதில் வரவில்லை. Web App deployment / access அமைப்பைச் சரிபார்க்கவும்.'));
+                }, 15000);
+                function cleanup() {
+                    clearTimeout(timer);
+                    delete window[callback];
+                    script.remove();
+                }
+                window[callback] = data => {
+                    cleanup();
+                    if (data && data.success) resolve(data);
+                    else reject(new Error((data && data.error) || 'Google Sheets API பிழை.'));
+                };
+                script.onerror = () => {
+                    cleanup();
+                    reject(new Error('Google Sheets API-ஐ அணுக முடியவில்லை. Web App URL மற்றும் Anyone access அமைப்பைச் சரிபார்க்கவும்.'));
+                };
+                const query = new URLSearchParams({ ...params, callback, _ts: String(Date.now()) });
+                script.src = GOOGLE_SHEETS_API_URL + '?' + query.toString();
+                document.head.appendChild(script);
+            });
+        }
+
+        function sheetRecordKey(record) {
+            return [record.id, record.grade, record.year, record.term]
+                .map(value => String(value == null ? '' : value).trim().toUpperCase())
+                .join('|');
+        }
+
+        // Compare the actual values returned from Google Sheets, including Reading and Co-curriculum flags.
+        // A matching student key alone must never be treated as a successful save.
+        function normalizeSheetValue(value) {
+            if (value === null || value === undefined || value === '') return '';
+            if (typeof value === 'string') {
+                const v = value.trim().toUpperCase();
+                if (['AB', 'ABS', 'ABSENT'].includes(v)) return 'AB';
+                if (v !== '' && Number.isFinite(Number(v))) return String(Number(v));
+                return v;
+            }
+            if (typeof value === 'number') return String(value);
+            return String(value).trim().toUpperCase();
+        }
+
+        function getCoCurriculumValue(record, field) {
+            if (!record) return '';
+            const title = field.charAt(0).toUpperCase() + field.slice(1);
+            return record[field] ?? record[title] ?? record[field.toUpperCase()] ?? '';
+        }
+
+        function sheetRecordMatches(actual, expected) {
+            const fields = ['id', 'name', 'grade', 'year', 'term',
+                'tamil', 'maths', 'islam', 'english', 'sinhala', 'era', 'reading'];
+            const standardMatches = fields.every(field =>
+                normalizeSheetValue(actual[field]) === normalizeSheetValue(expected[field])
+            );
+            const activityFields = ['scout', 'band', 'raban', 'leadership', 'other'];
+            return standardMatches && activityFields.every(field =>
+                normalizeSheetValue(getCoCurriculumValue(actual, field)) ===
+                normalizeSheetValue(getCoCurriculumValue(expected, field))
+            );
+        }
+
+        async function sheetsWrite(payload) {
+            // POST uses text/plain with no-cors. The response is opaque, so verify
+            // the actual Sheet contents with JSONP after the write.
+            let beforeDeleteCount = null;
+
+            if (payload.action === 'delete') {
+                const before = await sheetsJsonp({ action: 'list' });
+                const targetKey = sheetRecordKey(payload);
+                beforeDeleteCount = (before.records || [])
+                    .filter(record => sheetRecordKey(record) === targetKey).length;
+
+                if (beforeDeleteCount === 0) {
+                    throw new Error('Google Sheet-இல் நீக்க வேண்டிய மாணவர் பதிவு கிடைக்கவில்லை.');
+                }
+            }
+
+            await fetch(GOOGLE_SHEETS_API_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify(payload)
+            });
+
+            let lastError;
+            for (let attempt = 0; attempt < 8; attempt++) {
+                await new Promise(resolve => setTimeout(resolve, 800));
+                try {
+                    const result = await sheetsJsonp({ action: 'list' });
+                    const rows = result.records || [];
+
+                    if (payload.action === 'save' || payload.action === 'update') {
+                        const targetKey = sheetRecordKey(payload.record);
+                        const found = rows.find(record =>
+                            sheetRecordKey(record) === targetKey && sheetRecordMatches(record, payload.record)
+                        );
+                        const originalKey = payload.original ? sheetRecordKey(payload.original) : null;
+                        const oldGone = !originalKey || originalKey === targetKey ||
+                            !rows.some(record => sheetRecordKey(record) === originalKey);
+                        if (found && oldGone) return result;
+                    } else if (payload.action === 'delete') {
+                        const targetKey = sheetRecordKey(payload);
+                        const remainingCount = rows
+                            .filter(record => sheetRecordKey(record) === targetKey).length;
+
+                        // Exactly one matching row should have been removed.
+                        if (remainingCount === beforeDeleteCount - 1) return result;
+                    } else if (payload.action === 'bulkSave') {
+                        if ((payload.records || []).every(record =>
+                            rows.some(row => sheetRecordKey(row) === sheetRecordKey(record))
+                        )) return result;
+                    }
+
+                    lastError = new Error('Google Sheet-இல் மாற்றம் இன்னும் உறுதிப்படுத்தப்படவில்லை.');
+                } catch (err) {
+                    lastError = err;
+                }
+            }
+
+            throw lastError || new Error('Google Sheets-இல் மாற்றம் உறுதியாகவில்லை.');
+        }
+
+        async function loadStudentsFromGoogleSheet() {
+            const result = await sheetsJsonp({ action: 'list' });
+            const remote = {};
+            (result.records || []).forEach(r => {
+                const key = `${r.id}_${r.grade}_${r.year}_${r.term}`;
+                remote[key] = r;
+            });
+            // Google Sheet is authoritative, including when it contains zero rows.
+            localStorage.setItem('km_school_students', JSON.stringify(remote));
+            return Object.keys(remote).length;
+        }
+
+        async function saveStudentToGoogleSheet(record, original = null) {
+            const payload = original
+                ? { action: 'update', original, record }
+                : { action: 'save', record };
+            const result = await sheetsWrite(payload);
+            const remote = {};
+            (result.records || []).forEach(r => {
+                remote[`${r.id}_${r.grade}_${r.year}_${r.term}`] = r;
+            });
+            localStorage.setItem('km_school_students', JSON.stringify(remote));
+        }
+
+        async function deleteStudentFromGoogleSheet(id, grade, year, term) {
+            const result = await sheetsWrite({ action: 'delete', id, grade, year, term });
+            const remote = {};
+            (result.records || []).forEach(r => {
+                remote[`${r.id}_${r.grade}_${r.year}_${r.term}`] = r;
+            });
+            localStorage.setItem('km_school_students', JSON.stringify(remote));
+        }
+
+        // Global variables state
+        let currentResult = null;
+        let subjectChart = null;
+        let gradeChart = null;
+
+        // Initial Default Dataset
+        const defaultStudents = {
+            'INDEX101_Grade 5 A_2026_Term 3': {
+                name: 'M.I. Mohamed Aaqil',
+                id: 'INDEX101',
+                grade: 'Grade 5 A',
+                year: '2026',
+                term: 'Term 3',
+                tamil: 92, maths: 95, islam: 88, english: 84, sinhala: 88, era: 90, reading: 90
+            },
+            'INDEX102_Grade 5 A_2026_Term 3': {
+                name: 'A.R. Fathima Nusra',
+                id: 'INDEX102',
+                grade: 'Grade 5 A',
+                year: '2026',
+                term: 'Term 3',
+                tamil: 85, maths: 88, islam: 92, english: 78, sinhala: 75, era: 80, reading: 90
+            },
+            'INDEX104_Grade 5 A_2026_Term 3': {
+                name: 'M.H. Mohamed Rizwan',
+                id: 'INDEX104',
+                grade: 'Grade 5 A',
+                year: '2026',
+                term: 'Term 3',
+                tamil: 72, maths: 65, islam: 80, english: 68, sinhala: 70, era: 74, reading: 90
+            },
+            // Pre-populated Sample Data for Grade 1 through Grade 5 Top Performers
+            'INDEX501_Grade 5 A_2026_Term 3': { name: 'S.F. Zainab Rifa', id: 'INDEX501', grade: 'Grade 5 A', year: '2026', term: 'Term 3', tamil: 95, maths: 98, islam: 96, english: 92, sinhala: 90, era: 94, reading: 90},
+            'INDEX502_Grade 5 A_2026_Term 3': { name: 'A.M. Aslam Khan', id: 'INDEX502', grade: 'Grade 5 A', year: '2026', term: 'Term 3', tamil: 88, maths: 91, islam: 85, english: 82, sinhala: 79, era: 86, reading: 90},
+            'INDEX401_Grade 4 A_2026_Term 3': { name: 'M.A. Mohamed Yasir', id: 'INDEX401', grade: 'Grade 4 A', year: '2026', term: 'Term 3', tamil: 96, maths: 94, islam: 92, english: 88, sinhala: 85, era: 91, reading: 90},
+            'INDEX402_Grade 4 A_2026_Term 3': { name: 'K.L. Fathima Afla', id: 'INDEX402', grade: 'Grade 4 A', year: '2026', term: 'Term 3', tamil: 90, maths: 87, islam: 95, english: 84, sinhala: 80, era: 88, reading: 90},
+            'INDEX301_Grade 3 A_2026_Term 3': { name: 'R.M. Mohamed Hamdan', id: 'INDEX301', grade: 'Grade 3 A', year: '2026', term: 'Term 3', tamil: 94, maths: 96, islam: 98, english: 90, sinhala: 86, era: 92, reading: 90},
+            'INDEX302_Grade 3 A_2026_Term 3': { name: 'S.H. Sumayya Banu', id: 'INDEX302', grade: 'Grade 3 A', year: '2026', term: 'Term 3', tamil: 89, maths: 92, islam: 90, english: 85, sinhala: 83, era: 87, reading: 90},
+            'INDEX201_Grade 2 A_2026_Term 3': { name: 'T.N. Mohamed Ihsan', id: 'INDEX201', grade: 'Grade 2 A', year: '2026', term: 'Term 3', tamil: 98, maths: 95, islam: 97, english: 93, sinhala: 89, era: 94, reading: 90},
+            'INDEX202_Grade 2 A_2026_Term 3': { name: 'M.S. Aisha Mariyam', id: 'INDEX202', grade: 'Grade 2 A', year: '2026', term: 'Term 3', tamil: 91, maths: 88, islam: 94, english: 86, sinhala: 82, era: 90, reading: 90},
+            'INDEX1001_Grade 1 A_2026_Term 3': { name: 'H.M. Mohamed Zayan', id: 'INDEX1001', grade: 'Grade 1 A', year: '2026', term: 'Term 3', tamil: 97, maths: 99, islam: 98, english: 95, sinhala: 92, era: 96, reading: 90},
+            'INDEX1002_Grade 1 A_2026_Term 3': { name: 'A.J. Fathima Haniya', id: 'INDEX1002', grade: 'Grade 1 A', year: '2026', term: 'Term 3', tamil: 93, maths: 90, islam: 96, english: 89, sinhala: 87, era: 91, reading: 90}
+        };
+
+        // Initialize localStorage if empty
+        if (!localStorage.getItem('km_school_students')) {
+            localStorage.setItem('km_school_students', JSON.stringify({}));
+        }
+
+        // Load remote Sheet records when the portal opens.
+        window.addEventListener('load', async () => {
+            try {
+                const count = await loadStudentsFromGoogleSheet();
+                renderAdminTable();
+                if (count > 0) {
+                    showToast(`Google Sheets-இலிருந்து ${count} மாணவர் பதிவுகள் ஏற்றப்பட்டன.`, 'success');
+                } else {
+                    showToast('Google Sheet காலியாக உள்ளது. புதிய பதிவுகள் நேரடியாக Sheets-இல் சேமிக்கப்படும்.', 'info');
+                }
+            } catch (error) {
+                console.error('Google Sheets connection failed:', error);
+                showToast('Google Sheets இணைப்பு தோல்வி: ' + error.message, 'error');
+            }
+        });
+
+        // Window onload initialization
+        window.onload = function() {
+            loadAppearance();
+            renderAdminTable();
+        };
+
+        // Admin login gate. Note: a password embedded in a standalone HTML file is not secure authentication.
+        const ADMIN_PORTAL_PASSWORD = 'admin123';
+        function adminLogin(event) {
+            if (event) event.preventDefault();
+            const entered = document.getElementById('admin-login-password').value;
+            if (entered === ADMIN_PORTAL_PASSWORD) {
+                sessionStorage.setItem('km_admin_authenticated', '1');
+                document.getElementById('admin-login-panel').classList.add('hidden');
+                document.getElementById('admin-protected-content').classList.remove('hidden');
+                document.getElementById('admin-login-error').classList.add('hidden');
+                document.getElementById('admin-login-password').value = '';
+                renderAdminTable();
+            } else {
+                document.getElementById('admin-login-error').classList.remove('hidden');
+                document.getElementById('admin-login-password').select();
+            }
+            return false;
+        }
+        function adminLogout() {
+            sessionStorage.removeItem('km_admin_authenticated');
+            document.getElementById('admin-protected-content').classList.add('hidden');
+            document.getElementById('admin-login-panel').classList.remove('hidden');
+            switchTab('student');
+        }
+
+        // Navigation Tab Switching
+        function switchTab(tabId) {
+            if (tabId === 'admin') {
+                const isAuthenticated = sessionStorage.getItem('km_admin_authenticated') === '1';
+                document.getElementById('admin-login-panel').classList.toggle('hidden', isAuthenticated);
+                document.getElementById('admin-protected-content').classList.toggle('hidden', !isAuthenticated);
+            }
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.className = 'nav-btn flex items-center space-x-2 px-4 py-2 text-sm font-semibold rounded-lg transition-all duration-200 text-slate-300 hover:text-white hover:bg-slate-700/50';
+            });
+
+            const targetSection = document.getElementById(`tab-${tabId}`);
+            if (targetSection) targetSection.classList.remove('hidden');
+
+            const activeNav = document.getElementById(`nav-${tabId}`);
+            if (activeNav) {
+                activeNav.className = 'nav-btn flex items-center space-x-2 px-4 py-2 text-sm font-semibold rounded-lg transition-all duration-200 bg-teal-500 text-white shadow';
+            }
+
+            // Close mobile menu if open
+            document.getElementById('mobile-menu').classList.add('hidden');
+
+            if (tabId === 'admin' && sessionStorage.getItem('km_admin_authenticated') === '1') {
+                renderAdminTable();
+            } else if (tabId === 'analytics') {
+                renderAnalytics();
+            }
+        }
+
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        }
+
+        // Student Search: Index only shows every available term; optional filters narrow results.
+        function handleStudentSearch(e) {
+            if (e) e.preventDefault();
+            const id = document.getElementById('search-roll').value.trim().toUpperCase();
+            const grade = document.getElementById('search-grade').value;
+            const year = document.getElementById('search-year').value;
+            const term = document.getElementById('search-term').value;
+            if (!id) { showToast('மாணவர் Index Number-ஐ உள்ளிடவும்.', 'error'); return; }
+
+            const students = Object.values(JSON.parse(localStorage.getItem('km_school_students') || '{}'));
+            const matches = students.filter(st =>
+                String(st.id || '').trim().toUpperCase() === id &&
+                (!grade || String(st.grade) === grade) &&
+                (!year || String(st.year) === year) &&
+                (!term || String(st.term) === term)
+            ).sort((a, b) => {
+                const order = { 'Term 1': 1, 'Term 2': 2, 'Term 3': 3 };
+                return (order[a.term] || 99) - (order[b.term] || 99);
+            });
+
+            if (matches.length) {
+                displayResultCards(matches);
+                showToast(`${matches.length} Exam Result(s) Loaded Successfully`, 'success');
+            } else {
+                document.getElementById('student-result-container').classList.add('hidden');
+                document.getElementById('student-empty-state').classList.remove('hidden');
+                showToast('இந்த Index Number-க்கு பொருந்தும் Result கிடைக்கவில்லை.', 'error');
+            }
+        }
+
+        function displayResultCards(records) {
+            const container = document.getElementById('student-result-container');
+            const template = document.getElementById('printable-report-card');
+            container.querySelectorAll('.generated-report-card').forEach(card => card.remove());
+            template.classList.add('hidden');
+            container.classList.remove('hidden');
+            document.getElementById('student-empty-state').classList.add('hidden');
+            records.forEach(record => {
+                const card = template.cloneNode(true);
+                card.removeAttribute('id');
+                card.classList.remove('hidden');
+                card.classList.add('printable-report-card', 'generated-report-card');
+                container.appendChild(card);
+                displayResultCard(record, card);
+            });
+            currentResult = records[records.length - 1] || null;
+        }
+
+        const SUBJECT_KEYS = ['tamil', 'maths', 'islam', 'english', 'sinhala', 'era', 'reading'];
+        function isAbsent(value) {
+            return typeof value === 'string' && ['AB', 'ABS', 'ABSENT', 'ஆப்சன்ட்', 'அப்சன்ட்', 'ABSENT FOR EXAM'].includes(value.trim().toUpperCase());
+        }
+        function getEvaluatedScores(student) {
+            return SUBJECT_KEYS.map(key => student[key]).filter(value => value !== null && value !== undefined && value !== '');
+        }
+        function getStudentTotal(student) {
+            return getEvaluatedScores(student).reduce((sum, value) => sum + (isAbsent(value) ? 0 : Number(value)), 0);
+        }
+        function getStudentPercentage(student) {
+            const scores = getEvaluatedScores(student);
+            return scores.length ? (getStudentTotal(student) / (scores.length * 100)) * 100 : 0;
+        }
+
+        function calculateGrade(score) {
+            if (score === 'AB' || score === 'ABSENT' || score === 'ABS') return { g: 'AB', r: 'Absent for Exam' };
+            const num = Number(score);
+            if (isNaN(num)) return { g: '-', r: '-' };
+            if (num >= 75) return { g: 'A', r: 'Distinction' };
+            if (num >= 65) return { g: 'B', r: 'Very Good' };
+            if (num >= 55) return { g: 'C', r: 'Credit' };
+            if (num >= 35) return { g: 'S', r: 'Satisfactory Pass' };
+            return { g: 'F', r: 'Needs Improvement' };
+        }
+
+        function displayResultCard(st, card = document.getElementById('printable-report-card')) {
+            currentResult = st;
+
+            card.querySelector('#res-name').innerText = st.name;
+            card.querySelector('#res-id').innerText = st.id;
+            card.querySelector('#res-class').innerText = st.grade;
+            card.querySelector('#res-year').innerText = st.year;
+            card.querySelector('#res-term').innerText = st.term;
+
+            const allSubjects = [
+                { name: 'Tamil', score: st.tamil },
+                { name: 'Mathematics', score: st.maths },
+                { name: 'Islam', score: st.islam },
+                { name: 'English', score: st.english },
+                { name: 'Sinhala', score: st.sinhala },
+                { name: 'ERA (Env. Related Activities)', score: st.era },
+                { name: 'Reading', score: st.reading }
+            ];
+
+            // Filter evaluated subjects
+            const subjects = allSubjects.filter(sub => sub.score !== null && sub.score !== undefined && sub.score !== '');
+
+            let total = 0;
+            let totalEvaluatedSubjects = subjects.length;
+            const tbody = card.querySelector('#res-table-body');
+            tbody.innerHTML = '';
+
+            subjects.forEach(sub => {
+                const isAb = typeof sub.score === 'string' && ['AB', 'ABS', 'ABSENT', 'ஆப்சன்ட்', 'அப்சன்ட்'].includes(sub.score.trim().toUpperCase());
+                let scoreValStr = sub.score;
+                let eval = calculateGrade(sub.score);
+                
+                if (isAb) {
+                    scoreValStr = 'Absent (0)';
+                    eval = { g: 'AB', r: 'Absent (Counted as 0)' };
+                    // Absent counts as 0 marks
+                    total += 0;
+                } else {
+                    const scoreNum = Number(sub.score);
+                    total += scoreNum;
+                }
+
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-50 transition';
+                tr.innerHTML = `
+                    <td class="p-3.5 font-bold text-slate-800">${sub.name}</td>
+                    <td class="p-3.5 text-center font-medium text-slate-500">100</td>
+                    <td class="p-3.5 text-center font-extrabold ${isAb ? 'text-red-600' : 'text-navy-900'}">${scoreValStr}</td>
+                    <td class="p-3.5 text-center"><span class="px-2.5 py-1 rounded-md ${isAb ? 'bg-red-100 text-red-800 border-red-300' : 'bg-emerald-100 text-emerald-800 border-emerald-200'} text-xs font-bold border">${eval.g}</span></td>
+                    <td class="p-3.5 ${isAb ? 'text-red-700 font-semibold' : 'text-slate-600 font-medium'}">${eval.r}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            // Co-curriculum values come from matching Google Sheet columns.
+            // Only an explicit TRUE displays a checked square; FALSE/blank stays invisible.
+            ['scout', 'band', 'raban', 'leadership', 'other'].forEach(field => {
+                const marker = card.querySelector(`[data-cocurriculum="${field}"]`);
+                if (!marker) return;
+                const value = getCoCurriculumValue(st, field);
+                const isTrue = value === true ||
+                    (typeof value === 'string' && value.trim().toUpperCase() === 'TRUE');
+                marker.classList.toggle('hidden', !isTrue);
+                marker.classList.toggle('is-checked', isTrue);
+            });
+
+            // Calculate metrics based on total subjects evaluated (Absent counts as 0 out of 100)
+            const evalCount = Math.max(totalEvaluatedSubjects, 1);
+            const maxScore = evalCount * 100;
+            const pct = (total / maxScore) * 100;
+            const overallEval = calculateGrade(pct);
+            const isPass = pct >= 35;
+
+            card.querySelector('#res-total').innerText = `${total} / ${maxScore}`;
+            card.querySelector('#res-percentage').innerText = `${pct.toFixed(1)}%`;
+            card.querySelector('#res-overall-grade').innerText = overallEval.g;
+            card.querySelector('#res-avg').innerText = `${(total / evalCount).toFixed(1)} / 100`;
+
+            const badge = card.querySelector('#res-status-badge');
+            if (isPass) {
+                badge.innerText = 'PASSED';
+                badge.className = 'px-3.5 py-1 rounded-full text-xs font-extrabold uppercase tracking-wider bg-emerald-100 text-emerald-800 border border-emerald-300';
+            } else {
+                badge.innerText = 'FAILED';
+                badge.className = 'px-3.5 py-1 rounded-full text-xs font-extrabold uppercase tracking-wider bg-red-100 text-red-800 border border-red-300';
+            }
+
+            // Calculate Rank considering Absent as 0
+            const students = Object.values(JSON.parse(localStorage.getItem('km_school_students') || '{}'));
+            const sameGrade = students.filter(s => s.grade === st.grade && s.year === st.year && s.term === st.term);
+            sameGrade.sort((a, b) => {
+                const getTot = (student) => {
+                    const subs = getEvaluatedScores(student);
+                    let t = 0;
+                    subs.forEach(val => {
+                        if (typeof val !== 'string' || !['AB', 'ABS', 'ABSENT', 'ஆப்சன்ட்', 'அப்சன்ட்'].includes(val.trim().toUpperCase())) {
+                            t += Number(val);
+                        }
+                    });
+                    return t;
+                };
+                return getTot(b) - getTot(a);
+            });
+
+            const rank = sameGrade.findIndex(s => s.id === st.id) + 1;
+            card.querySelector('#res-rank').innerText = rank > 0 ? `#${rank} in ${st.grade}` : '-';
+        }
+
+        // Helper function to extract valid score or AB
+        function parseScoreInput(id) {
+            const val = document.getElementById(id).value.trim();
+            if (val === '' || val === null || val === undefined) return null;
+            const upper = val.toUpperCase();
+            if (['AB', 'ABS', 'ABSENT', 'ஆப்சன்ட்', 'அப்சன்ட்', 'ABSENT FOR EXAM'].includes(upper)) {
+                return 'AB';
+            }
+            if (!/^\d{1,3}$/.test(val)) return NaN;
+            return Number(val);
+        }
+
+        async function saveStudentRecord(e) {
+            e.preventDefault();
+            const id = document.getElementById('admin-index').value.trim().toUpperCase();
+            const name = document.getElementById('admin-name').value.trim();
+            const grade = document.getElementById('admin-grade').value;
+            const year = document.getElementById('admin-year').value;
+            const term = document.getElementById('admin-term').value;
+            const record = {
+                name, id, grade, year, term,
+                tamil: parseScoreInput('score-tamil'),
+                maths: parseScoreInput('score-maths'),
+                islam: parseScoreInput('score-islam'),
+                english: parseScoreInput('score-english'),
+                sinhala: parseScoreInput('score-sinhala'),
+                era: parseScoreInput('score-era'),
+                reading: parseScoreInput('score-reading')
+            };
+
+            // Keep the Sheet-managed Co-curriculum flags unchanged during score edits.
+            const existingRecordKey = `${id}_${grade}_${year}_${term}`;
+            const existingRecord = JSON.parse(localStorage.getItem('km_school_students') || '{}')[existingRecordKey] || {};
+            ['scout', 'band', 'raban', 'leadership', 'other'].forEach(field => {
+                record[field] = getCoCurriculumValue(existingRecord, field);
+            });
+
+            if (!id || !name || !grade || !year || !term) {
+                showToast('மாணவர் விவரங்களை முழுமையாக நிரப்பவும்.', 'error');
+                return;
+            }
+            const invalid = ['tamil','maths','islam','english','sinhala','era','reading'].find(field => {
+                const value = record[field];
+                return value !== null && value !== 'AB' &&
+                    (!Number.isInteger(value) || value < 0 || value > 100);
+            });
+            if (invalid) {
+                showToast(`${invalid.toUpperCase()} மதிப்பெண் 0 முதல் 100 வரை அல்லது AB ஆக இருக்க வேண்டும்.`, 'error');
+                return;
+            }
+
+            let original = null;
+            const originalText = document.getElementById('edit-index-original').value;
+            if (originalText) {
+                try { original = JSON.parse(originalText); }
+                catch (error) {
+                    showToast('Edit பதிவின் பழைய அடையாளத்தைப் படிக்க முடியவில்லை. மீண்டும் Edit செய்யவும்.', 'error');
+                    return;
+                }
+            }
+
+            const saveButton = e.submitter || document.querySelector('#tab-admin form button[type="submit"]');
+            if (saveButton) {
+                saveButton.disabled = true;
+                saveButton.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1.5"></i> Saving...';
+            }
+            try {
+                await saveStudentToGoogleSheet(record, original);
+                showToast(original
+                    ? `Google Sheets-இல் ${name} (${id}) பதிவு புதுப்பிக்கப்பட்டது.`
+                    : `Google Sheets-இல் ${name} (${id}) வெற்றிகரமாக சேமிக்கப்பட்டது.`, 'success');
+                resetAdminForm();
+                renderAdminTable();
+            } catch (error) {
+                console.error('Google Sheets save/update failed:', error);
+                showToast('Google Sheets-இல் சேமிக்க முடியவில்லை: ' + error.message, 'error');
+            } finally {
+                if (saveButton) {
+                    saveButton.disabled = false;
+                    saveButton.innerHTML = '<i class="fa-solid fa-floppy-disk mr-1.5"></i> Save Record';
+                }
+            }
+        }
+
+        // Admin Table Rendering with Dynamic Max Score (Absent treated as 0)
+        function renderAdminTable() {
+            const students = JSON.parse(localStorage.getItem('km_school_students') || '{}');
+            const list = Object.values(students);
+            document.getElementById('record-count').innerText = list.length;
+
+            const tbody = document.getElementById('admin-records-body');
+            tbody.innerHTML = '';
+
+            list.forEach(s => {
+                const allSubs = getEvaluatedScores(s);
+                
+                let total = 0;
+                allSubs.forEach(val => {
+                    if (typeof val !== 'string' || !['AB', 'ABS', 'ABSENT', 'ஆப்சன்ட்', 'அப்சன்ட்'].includes(val.trim().toUpperCase())) {
+                        total += Number(val);
+                    }
+                });
+
+                const count = Math.max(allSubs.length, 1);
+                const maxTotal = count * 100;
+                const pct = (total / maxTotal) * 100;
+                const evalGrade = calculateGrade(pct);
+
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-50 transition';
+                tr.innerHTML = `
+                    <td class="p-3 font-bold text-navy-900">${s.id}</td>
+                    <td class="p-3 font-medium text-slate-800">${s.name}</td>
+                    <td class="p-3 font-medium text-slate-600">${s.grade}</td>
+                    <td class="p-3 text-slate-500">${s.year} (${s.term})</td>
+                    <td class="p-3 text-center font-bold text-slate-800">${total} / ${maxTotal} (${count} Subj)</td>
+                    <td class="p-3 text-center font-extrabold text-teal-600">${pct.toFixed(1)}%</td>
+                    <td class="p-3 text-center"><span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-bold">${evalGrade.g}</span></td>
+                    <td class="p-3 text-center space-x-2">
+                        <button onclick="editRecord('${s.id}', '${s.grade}', '${s.year}', '${s.term}')" class="px-2 py-1 bg-amber-100 hover:bg-amber-200 text-amber-800 rounded font-semibold text-xs">Edit</button>
+                        <button onclick="deleteRecord('${s.id}', '${s.grade}', '${s.year}', '${s.term}', this)" class="px-2 py-1 bg-red-100 hover:bg-red-200 text-red-800 rounded font-semibold text-xs">Delete</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Render Dynamic Top Performers Leaderboard.
+        // Normalize Sheet values before filtering: Google Sheets may return year as
+        // a number (2026), while the dropdown value is a string ("2026").
+        function renderTopPerformers() {
+            const gradeSelect = document.getElementById('leaderboard-grade');
+            const yearSelect = document.getElementById('leaderboard-year');
+            const termSelect = document.getElementById('leaderboard-term');
+            const tbody = document.getElementById('top-performers-body');
+
+            if (!gradeSelect || !yearSelect || !termSelect || !tbody) return;
+
+            const normalize = value => String(value ?? '').trim().toUpperCase();
+            const selectedGrade = normalize(gradeSelect.value);
+            const selectedYear = normalize(yearSelect.value);
+            const selectedTerm = normalize(termSelect.value);
+
+            const students = Object.values(
+                JSON.parse(localStorage.getItem('km_school_students') || '{}')
+            );
+
+            const filtered = students.filter(student =>
+                normalize(student.grade) === selectedGrade &&
+                normalize(student.year) === selectedYear &&
+                normalize(student.term) === selectedTerm
+            );
+
+            // Use the same seven-subject scoring rules as the rest of the portal.
+            filtered.sort((a, b) => {
+                const percentageDifference =
+                    getStudentPercentage(b) - getStudentPercentage(a);
+                if (percentageDifference !== 0) return percentageDifference;
+                return String(a.name || '').localeCompare(String(b.name || ''));
+            });
+
+            const top10 = filtered.slice(0, 10);
+            tbody.innerHTML = '';
+
+            if (top10.length === 0) {
+                const row = document.createElement('tr');
+                const cell = document.createElement('td');
+                cell.colSpan = 8;
+                cell.className = 'text-center py-6 text-slate-400 font-medium';
+                cell.textContent =
+                    `No student records found for ${gradeSelect.value} (${yearSelect.value} - ${termSelect.value}).`;
+                row.appendChild(cell);
+                tbody.appendChild(row);
+                return;
+            }
+
+            top10.forEach((student, index) => {
+                const total = getStudentTotal(student);
+                const scores = getEvaluatedScores(student);
+                const maxScore = scores.length * 100;
+                const percentage = getStudentPercentage(student);
+                const evaluatedGrade = calculateGrade(percentage);
+
+                let rankBadge =
+                    `<span class="font-extrabold text-slate-600">#${index + 1}</span>`;
+                if (index === 0) {
+                    rankBadge = `<span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-amber-400 text-slate-900 font-bold text-xs shadow-md" title="1st Place - Gold"><i class="fa-solid fa-crown"></i></span>`;
+                } else if (index === 1) {
+                    rankBadge = `<span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-slate-300 text-slate-900 font-bold text-xs shadow-md" title="2nd Place - Silver"><i class="fa-solid fa-medal"></i></span>`;
+                } else if (index === 2) {
+                    rankBadge = `<span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-amber-700 text-white font-bold text-xs shadow-md" title="3rd Place - Bronze"><i class="fa-solid fa-award"></i></span>`;
+                }
+
+                const row = document.createElement('tr');
+                row.className = index < 3 ? 'bg-amber-50/40 font-medium' : 'hover:bg-slate-50';
+                row.innerHTML = `
+                    <td class="p-3.5 text-center">${rankBadge}</td>
+                    <td class="p-3.5 font-bold text-navy-900"></td>
+                    <td class="p-3.5 font-semibold text-slate-600"></td>
+                    <td class="p-3.5 text-center font-medium"></td>
+                    <td class="p-3.5 text-center font-extrabold text-slate-900">${total} / ${maxScore}</td>
+                    <td class="p-3.5 text-center font-extrabold text-teal-600">${percentage.toFixed(1)}%</td>
+                    <td class="p-3.5 text-center"><span class="px-2.5 py-1 rounded-md bg-emerald-100 text-emerald-800 text-xs font-bold border border-emerald-200">${evaluatedGrade.g}</span></td>
+                    <td class="p-3.5 text-center">
+                        <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase ${percentage >= 35 ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'}">
+                            ${percentage >= 35 ? 'PASSED' : 'FAILED'}
+                        </span>
+                    </td>
+                `;
+                row.children[1].textContent = student.name || '';
+                row.children[2].textContent = student.id || '';
+                row.children[3].textContent = student.grade || '';
+                tbody.appendChild(row);
+            });
+        }
+
+        function editRecord(id, grade, year, term) {
+            const key = `${id}_${grade}_${year}_${term}`;
+            const students = JSON.parse(localStorage.getItem('km_school_students') || '{}');
+            const r = students[key];
+            if (!r) return;
+
+            document.getElementById('admin-index').value = r.id;
+            document.getElementById('admin-name').value = r.name;
+            document.getElementById('admin-grade').value = r.grade;
+            document.getElementById('admin-year').value = r.year;
+            document.getElementById('admin-term').value = r.term;
+            document.getElementById('score-tamil').value = r.tamil ?? '';
+            document.getElementById('score-maths').value = r.maths ?? '';
+            document.getElementById('score-islam').value = r.islam ?? '';
+            document.getElementById('score-english').value = r.english ?? '';
+            document.getElementById('score-sinhala').value = r.sinhala ?? '';
+            document.getElementById('score-era').value = r.era ?? '';
+            document.getElementById('score-reading').value = r.reading ?? '';
+            document.getElementById('edit-index-original').value = JSON.stringify({
+                id: r.id, grade: r.grade, year: String(r.year), term: r.term
+            });
+
+            document.getElementById('form-title').innerText = `Edit Record for ${r.name}`;
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        async function deleteRecord(id, grade, year, term, button) {
+            const confirmed = confirm(
+                `இந்த மாணவர் பதிவை Google Sheet-இலிருந்தும் நீக்க வேண்டுமா?\\n\\n` +
+                `Index: ${id}\\nGrade: ${grade}\\nYear: ${year}\\nTerm: ${term}`
+            );
+            if (!confirmed) return;
+
+            if (button) {
+                button.disabled = true;
+                button.textContent = 'Deleting...';
+                button.classList.add('opacity-50', 'cursor-not-allowed');
+            }
+
+            try {
+                // Delete from Google Sheets first. Local data changes only after
+                // the server-side deletion has been verified.
+                await deleteStudentFromGoogleSheet(id, grade, year, term);
+
+                const key = `${id}_${grade}_${year}_${term}`;
+                const students = JSON.parse(localStorage.getItem('km_school_students') || '{}');
+                delete students[key];
+                localStorage.setItem('km_school_students', JSON.stringify(students));
+
+                showToast(`Record ${id} (${term}) Google Sheet-இலிருந்து நீக்கப்பட்டது.`, 'success');
+                renderAdminTable();
+            } catch (error) {
+                console.error('Google Sheets delete failed:', error);
+                showToast('Delete செய்ய முடியவில்லை: ' + error.message, 'error');
+                if (button) {
+                    button.disabled = false;
+                    button.textContent = 'Delete';
+                    button.classList.remove('opacity-50', 'cursor-not-allowed');
+                }
+            }
+        }
+
+        function resetAdminForm() {
+            document.getElementById('admin-index').value = '';
+            document.getElementById('admin-name').value = '';
+            document.getElementById('score-tamil').value = '';
+            document.getElementById('score-maths').value = '';
+            document.getElementById('score-islam').value = '';
+            document.getElementById('score-english').value = '';
+            document.getElementById('score-sinhala').value = '';
+            document.getElementById('score-era').value = '';
+            document.getElementById('score-reading').value = '';
+            document.getElementById('edit-index-original').value = '';
+            document.getElementById('form-title').innerText = 'Add / Update Student Examination Record';
+        }
+
+        function resetDefaultData() {
+            localStorage.setItem('km_school_students', JSON.stringify(defaultStudents));
+            renderAdminTable();
+            showToast('Reset to sample dataset', 'info');
+        }
+
+        // CSV Export Functions
+        function exportCurrentCSV() {
+            if (!currentResult) return;
+            let csv = 'Subject,Max Score,Marks,Grade,Remarks\n';
+            const list = [
+                { name: 'Tamil', score: currentResult.tamil },
+                { name: 'Mathematics', score: currentResult.maths },
+                { name: 'Islam', score: currentResult.islam },
+                { name: 'English', score: currentResult.english },
+                { name: 'Sinhala', score: currentResult.sinhala },
+                { name: 'ERA', score: currentResult.era },
+                { name: 'Reading', score: currentResult.reading }
+            ];
+            list.forEach(item => {
+                const ev = calculateGrade(item.score);
+                csv += `"${item.name}",100,${item.score},"${ev.g}","${ev.r}"\n`;
+            });
+            downloadCSV(csv, `${currentResult.id}_${currentResult.name}_ReportCard.csv`);
+        }
+
+        function exportAllCSV() {
+            const students = Object.values(JSON.parse(localStorage.getItem('km_school_students') || '{}'));
+            const keys = ['tamil', 'maths', 'islam', 'english', 'sinhala', 'era', 'reading'];
+            let csv = 'Index,Name,Class,Year,Term,Tamil,Maths,Islam,English,Sinhala,ERA,Reading,Total,Percentage\\n';
+            students.forEach(student => {
+                const scores = keys.map(key => student[key] ?? '');
+                const evaluated = scores.filter(v => v !== '');
+                const total = evaluated.reduce((sum, value) => sum + (isAbsent(value) ? 0 : Number(value)), 0);
+                const max = evaluated.length * 100;
+                const pct = max ? (total / max) * 100 : 0;
+                const quote = value => '"' + String(value ?? '').replace(/"/g, '""') + '"';
+                csv += [student.id, student.name, student.grade, student.year, student.term, ...scores, total, pct.toFixed(1) + '%'].map(quote).join(',') + '\\n';
+            });
+            downloadCSV(csv, 'School_Exam_Results_All_Records.csv');
+        }
+
+        function downloadCSV(csvContent, filename) {
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.setAttribute('download', filename);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // Analytics & Chart.js Integration
+        function renderAnalytics() {
+            const students = Object.values(JSON.parse(localStorage.getItem('km_school_students') || '{}'));
+            document.getElementById('stat-total-students').innerText = students.length;
+            if (!students.length) {
+                document.getElementById('stat-pass-rate').innerText = '0%';
+                document.getElementById('stat-school-avg').innerText = '0%';
+                document.getElementById('stat-top-student').innerText = '-';
+                if (subjectChart) subjectChart.destroy();
+                if (gradeChart) gradeChart.destroy();
+                renderTopPerformers();
+                return;
+            }
+            let passed = 0, grandTotal = 0;
+            let topStudent = { name: '-', total: -1 };
+            const subTotals = Object.fromEntries(SUBJECT_KEYS.map(key => [key, 0]));
+            const subCounts = Object.fromEntries(SUBJECT_KEYS.map(key => [key, 0]));
+            const gradeCounts = { A: 0, B: 0, C: 0, S: 0, F: 0, AB: 0 };
+            students.forEach(student => {
+                const total = getStudentTotal(student);
+                const pct = getStudentPercentage(student);
+                grandTotal += pct;
+                if (pct >= 35) passed++;
+                if (total > topStudent.total) topStudent = { name: student.name, total };
+                SUBJECT_KEYS.forEach(key => {
+                    const value = student[key];
+                    if (value !== null && value !== undefined && value !== '') {
+                        subTotals[key] += isAbsent(value) ? 0 : Number(value);
+                        subCounts[key]++;
+                    }
+                });
+                const grade = calculateGrade(pct).g;
+                gradeCounts[grade] = (gradeCounts[grade] || 0) + 1;
+            });
+            document.getElementById('stat-pass-rate').innerText = `${(passed / students.length * 100).toFixed(1)}%`;
+            document.getElementById('stat-school-avg').innerText = `${(grandTotal / students.length).toFixed(1)}%`;
+            document.getElementById('stat-top-student').innerText = topStudent.name;
+            renderTopPerformers();
+            const ctx1 = document.getElementById('chart-subject-avg').getContext('2d');
+            if (subjectChart) subjectChart.destroy();
+            subjectChart = new Chart(ctx1, {
+                type: 'bar',
+                data: {
+                    labels: ['Tamil', 'Mathematics', 'Islam', 'English', 'Sinhala', 'ERA', 'Reading'],
+                    datasets: [{
+                        label: 'Subject Average Score',
+                        data: SUBJECT_KEYS.map(key => subCounts[key] ? Number((subTotals[key] / subCounts[key]).toFixed(1)) : 0),
+                        backgroundColor: '#14b8a6',
+                        borderRadius: 8
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, scales: { y: { min: 0, max: 100 } } }
+            });
+            const ctx2 = document.getElementById('chart-grade-pie').getContext('2d');
+            if (gradeChart) gradeChart.destroy();
+            gradeChart = new Chart(ctx2, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Grade A', 'Grade B', 'Grade C', 'Grade S', 'Fail (F)', 'Absent'],
+                    datasets: [{ data: [gradeCounts.A, gradeCounts.B, gradeCounts.C, gradeCounts.S, gradeCounts.F, gradeCounts.AB], borderWidth: 0 }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+            });
+        }
+
+        function getImageCandidates(value) {
+            const raw = (value || '').trim();
+            if (!raw) return [];
+
+            const driveMatch = raw.match(/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/) ||
+                               raw.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+            if (driveMatch) {
+                const id = driveMatch[1];
+                return [
+                    `https://drive.google.com/thumbnail?id=${id}&sz=w2000`,
+                    `https://drive.google.com/uc?export=view&id=${id}`,
+                    `https://drive.usercontent.google.com/download?id=${id}&export=view`
+                ];
+            }
+
+            try {
+                const parsed = new URL(raw);
+                if (parsed.protocol !== 'https:' && parsed.protocol !== 'http:') {
+                    throw new Error('Only HTTP/HTTPS image links are supported.');
+                }
+                return [raw];
+            } catch (error) {
+                throw new Error('Please enter a valid image URL or Google Drive sharing link.');
+            }
+        }
+
+        function normalizeImageUrl(value) {
+            return getImageCandidates(value)[0] || '';
+        }
+
+        function toggleLogoModal(show) {
+            const modal = document.getElementById('logo-modal');
+            if (show) {
+                document.getElementById('custom-logo-input').value = localStorage.getItem('km_school_logo') || '';
+                document.getElementById('custom-bg-input').value = localStorage.getItem('km_school_bg') || '';
+                document.getElementById('custom-logo-file').value = '';
+                modal.classList.remove('hidden');
+            } else {
+                modal.classList.add('hidden');
+            }
+        }
+
+        function readLogoFileAsDataUrl(file) {
+            return new Promise((resolve, reject) => {
+                if (!file) return resolve('');
+                if (!file.type || !file.type.startsWith('image/')) {
+                    return reject(new Error('Please choose a valid image file.'));
+                }
+                if (file.size > 3 * 1024 * 1024) {
+                    return reject(new Error('Logo image must be 3 MB or smaller.'));
+                }
+                const reader = new FileReader();
+                reader.onload = () => resolve(String(reader.result || ''));
+                reader.onerror = () => reject(new Error('Could not read the selected logo file.'));
+                reader.readAsDataURL(file);
+            });
+        }
+
+        async function saveAppearanceSettings() {
+            try {
+                const logoFile = document.getElementById('custom-logo-file').files[0];
+                const typedLogoUrl = document.getElementById('custom-logo-input').value;
+                const bgUrl = normalizeImageUrl(document.getElementById('custom-bg-input').value);
+
+                let logoUrl = '';
+                if (logoFile) {
+                    // Saving the image itself avoids external-host and Google Drive embed restrictions.
+                    logoUrl = await readLogoFileAsDataUrl(logoFile);
+                } else {
+                    logoUrl = normalizeImageUrl(typedLogoUrl);
+                }
+
+                if (logoUrl) localStorage.setItem('km_school_logo', logoUrl);
+                else localStorage.removeItem('km_school_logo');
+
+                if (bgUrl) localStorage.setItem('km_school_bg', bgUrl);
+                else localStorage.removeItem('km_school_bg');
+
+                loadAppearance();
+                toggleLogoModal(false);
+                showToast('Appearance settings saved. The selected logo is stored in this browser.', 'success');
+            } catch (error) {
+                showToast(error.message || 'Could not save appearance settings.', 'error');
+            }
+        }
+
+        function resetAppearanceDefault() {
+            localStorage.removeItem('km_school_logo');
+            localStorage.removeItem('km_school_bg');
+            document.getElementById('custom-logo-input').value = '';
+            document.getElementById('custom-bg-input').value = '';
+            document.getElementById('custom-logo-file').value = '';
+            loadAppearance();
+            toggleLogoModal(false);
+            showToast('Appearance reset to default (official SVG logo, no background image)', 'info');
+        }
+
+        function loadAppearance() {
+            const storedLogoUrl = localStorage.getItem('km_school_logo') || '';
+            const storedBgUrl = localStorage.getItem('km_school_bg') || '';
+            let logoCandidates = [];
+            let bgCandidates = [];
+
+            try {
+                logoCandidates = storedLogoUrl.startsWith('data:image/')
+                    ? [storedLogoUrl]
+                    : getImageCandidates(storedLogoUrl);
+            } catch (error) {
+                console.warn('Invalid saved school logo URL:', error);
+            }
+
+            try {
+                bgCandidates = getImageCandidates(storedBgUrl);
+            } catch (error) {
+                console.warn('Invalid saved background image URL:', error);
+            }
+
+            const logoPairs = [
+                ['header-logo-img', 'header-logo-svg'],
+                ['portal-logo-img', 'portal-logo-svg'],
+                ['card-logo-img', 'card-logo-svg']
+            ];
+
+            logoPairs.forEach(([imgId, svgId]) => {
+                const img = document.getElementById(imgId);
+                const fallback = document.getElementById(svgId);
+                const token = (Number(img.dataset.loadToken) || 0) + 1;
+                img.dataset.loadToken = String(token);
+
+                img.classList.add('hidden');
+                fallback.classList.remove('hidden');
+
+                if (!logoCandidates.length) {
+                    img.removeAttribute('src');
+                    return;
+                }
+
+                let candidateIndex = 0;
+                const tryNextLogo = () => {
+                    if (Number(img.dataset.loadToken) !== token) return;
+                    if (candidateIndex >= logoCandidates.length) {
+                        img.classList.add('hidden');
+                        fallback.classList.remove('hidden');
+                        console.warn('School logo could not be loaded from the supplied link.');
+                        return;
+                    }
+                    img.src = logoCandidates[candidateIndex++];
+                };
+
+                img.onload = () => {
+                    if (Number(img.dataset.loadToken) !== token) return;
+                    img.classList.remove('hidden');
+                    fallback.classList.add('hidden');
+                };
+                img.onerror = tryNextLogo;
+                tryNextLogo();
+            });
+
+            const bodyEl = document.getElementById('main-body');
+            if (bgCandidates.length) {
+                const backgroundTest = new Image();
+                let candidateIndex = 0;
+                backgroundTest.onload = () => {
+                    const workingUrl = bgCandidates[candidateIndex - 1];
+                    bodyEl.style.setProperty(
+                        'background-image',
+                        `linear-gradient(to bottom, rgba(255, 255, 255, 0.72), rgba(248, 250, 252, 0.82)), url("${workingUrl}")`,
+                        'important'
+                    );
+                    bodyEl.style.backgroundColor = 'transparent';
+                };
+                backgroundTest.onerror = () => {
+                    if (candidateIndex < bgCandidates.length) {
+                        backgroundTest.src = bgCandidates[candidateIndex++];
+                    } else {
+                        bodyEl.style.setProperty('background-image', 'none', 'important');
+                        bodyEl.style.backgroundColor = '#ffffff';
+                        showToast('Background image could not be embedded. Try a direct image link or check Drive sharing.', 'error');
+                    }
+                };
+                backgroundTest.src = bgCandidates[candidateIndex++];
+            } else {
+                bodyEl.style.setProperty('background-image', 'none', 'important');
+                bodyEl.style.backgroundColor = '#ffffff';
+            }
+        }
+
+        // Toast Messages
+        function showToast(msg, type = 'info') {
+            const toast = document.getElementById('toast-message');
+            const text = document.getElementById('toast-text');
+            const icon = document.getElementById('toast-icon');
+
+            text.innerText = msg;
+            if (type === 'error') {
+                icon.className = 'fa-solid fa-circle-exclamation text-red-400 text-lg';
+            } else if (type === 'success') {
+                icon.className = 'fa-solid fa-circle-check text-emerald-400 text-lg';
+            } else {
+                icon.className = 'fa-solid fa-info-circle text-blue-400 text-lg';
+            }
+
+            toast.classList.remove('hidden');
+            setTimeout(() => {
+                toast.classList.add('hidden');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
